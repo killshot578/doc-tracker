@@ -1,17 +1,28 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
+
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-// MongoDB connection (we'll update later if needed)
+// Serve frontend (VERY IMPORTANT)
+app.use(express.static(path.join(__dirname)));
+
+// Homepage route
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// MongoDB connection
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
   .catch(err => console.error("MongoDB Error:", err));
 
-// Generate tracking ID
+// Generate Tracking ID
 function generateTrackingId() {
   return 'DOC-' + Math.random().toString(36).substring(2, 8).toUpperCase();
 }
@@ -92,9 +103,9 @@ app.put('/update/:trackingId', async (req, res) => {
   res.json({ message: 'Updated successfully' });
 });
 
-// Start server
+// Start server (IMPORTANT FOR RENDER)
 const PORT = process.env.PORT || 5000;
-console.log("Starting server...");
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
