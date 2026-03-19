@@ -7,7 +7,7 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB connection (we'll update later if needed)
-mongoose.connect('mongodb+srv://admin:12345@cluster0.ip0ktza.mongodb.net/doc_tracking');
+mongoose.connect(process.env.MONGO_URI);
 
 // Generate tracking ID
 function generateTrackingId() {
