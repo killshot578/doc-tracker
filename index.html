@@ -47,7 +47,7 @@
 
   <script>
     async function createDoc() {
-      const res = await fetch('http://localhost:5000/documents', {
+      const res = await fetch('https://doc-tracker-ug91.onrender.com/documents', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
@@ -62,7 +62,7 @@
 
     async function trackDoc() {
       const id = document.getElementById('trackId').value;
-      const res = await fetch(`http://localhost:5000/track/${id}`);
+      const res = await fetch(`https://doc-tracker-ug91.onrender.com/track/${id}`);
       const data = await res.json();
 
       let html = `
@@ -82,7 +82,7 @@
     async function updateDoc() {
       const id = document.getElementById('updateId').value;
 
-      await fetch(`http://localhost:5000/update/${id}`, {
+      await fetch(`https://doc-tracker-ug91.onrender.com/update/${id}`, {
         method: 'PUT',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
