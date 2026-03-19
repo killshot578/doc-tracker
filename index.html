@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Document Tracking System</title>
+</head>
+<body style="font-family: Arial; padding: 30px; max-width: 800px; margin: auto;">
+
+  <h1>📄 Document Tracking System</h1>
+
+  <hr>
+
+  <h3>➕ Create Document</h3>
+  <input id="title" placeholder="Document Title" style="width:100%; padding:8px;"><br><br>
+  
+  <select id="origin" style="width:100%; padding:8px;">
+    <option>Drone Lab</option>
+    <option>Admin Office</option>
+    <option>Accounts</option>
+    <option>Exam Cell</option>
+  </select><br><br>
+
+  <button onclick="createDoc()">Create Document</button>
+
+  <hr>
+
+  <h3>🔍 Track Document</h3>
+  <input id="trackId" placeholder="Enter Tracking ID" style="width:70%; padding:8px;">
+  <button onclick="trackDoc()">Track</button>
+
+  <div id="result" style="margin-top:20px; background:#f4f4f4; padding:15px;"></div>
+
+  <hr>
+
+  <h3>🔄 Update Status</h3>
+  <input id="updateId" placeholder="Tracking ID" style="width:100%; padding:8px;"><br><br>
+
+  <select id="location" style="width:100%; padding:8px;">
+    <option>HoD Office</option>
+    <option>Principal Office</option>
+    <option>Trust Office</option>
+    <option>Accounts</option>
+  </select><br><br>
+
+  <input id="status" placeholder="Status (e.g. Sent / Received / Approved)" style="width:100%; padding:8px;"><br><br>
+
+  <button onclick="updateDoc()">Update Status</button>
+
+  <script>
+    async function createDoc() {
+      const res = await fetch('http://localhost:5000/documents', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          title: document.getElementById('title').value,
+          origin: document.getElementById('origin').value
+        })
+      });
+
+      const data = await res.json();
+      alert("Tracking ID: " + data.trackingId);
+    }
+
+    async function trackDoc() {
+      const id = document.getElementById('trackId').value;
+      const res = await fetch(`http://localhost:5000/track/${id}`);
+      const data = await res.json();
+
+      let html = `
+        <b>Title:</b> ${data.title}<br>
+        <b>Status:</b> ${data.status}<br>
+        <b>Current Location:</b> ${data.currentLocation}<br><br>
+        <b>History:</b><br>
+      `;
+
+      data.history.forEach(h => {
+        html += `➡️ ${h.action} at ${h.location} (${new Date(h.timestamp).toLocaleString()})<br>`;
+      });
+
+      document.getElementById('result').innerHTML = html;
+    }
+
+    async function updateDoc() {
+      const id = document.getElementById('updateId').value;
+
+      await fetch(`http://localhost:5000/update/${id}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          status: document.getElementById('status').value,
+          location: document.getElementById('location').value
+        })
+      });
+
+      alert("Updated successfully!");
+    }
+  </script>
+
+</body>
+</html>
