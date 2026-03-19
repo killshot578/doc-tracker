@@ -1,99 +1,210 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Document Tracking System</title>
+  <title>SREC Document Tracking System</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f6f9;
+      margin: 0;
+    }
+
+    header {
+      background: #002147;
+      color: white;
+      padding: 15px 30px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    h3 {
+      margin-top: 25px;
+      color: #002147;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 8px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background: #002147;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #004080;
+    }
+
+    .result-box {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 5px;
+      margin-top: 15px;
+    }
+
+    .timeline {
+      margin-top: 10px;
+    }
+
+    .timeline-item {
+      padding: 8px;
+      border-left: 3px solid #002147;
+      margin-left: 10px;
+      margin-bottom: 10px;
+      background: #eef3f9;
+    }
+  </style>
 </head>
-<body style="font-family: Arial; padding: 30px; max-width: 800px; margin: auto;">
 
-  <h1>📄 Document Tracking System</h1>
+<body>
 
-  <hr>
+<header>
+  📄 SREC Document Movement Tracking System
+</header>
 
+<div class="container">
+
+  <!-- CREATE -->
   <h3>➕ Create Document</h3>
-  <input id="title" placeholder="Document Title" style="width:100%; padding:8px;"><br><br>
-  
-  <select id="origin" style="width:100%; padding:8px;">
-    <option>Drone Lab</option>
-    <option>Admin Office</option>
-    <option>Accounts</option>
-    <option>Exam Cell</option>
-  </select><br><br>
+
+  <input id="title" placeholder="Document Title">
+
+  <select id="origin">
+    <option>Aeronautical Engineering</option>
+    <option>Biomedical Engineering</option>
+    <option>Civil Engineering</option>
+    <option>Mechanical Engineering</option>
+    <option>ECE</option>
+    <option>EEE</option>
+    <option>EIE</option>
+    <option>CSE</option>
+    <option>IT</option>
+    <option>AI & DS</option>
+    <option>Robotics & Automation</option>
+    <option>Science & Humanities</option>
+  </select>
 
   <button onclick="createDoc()">Create Document</button>
 
-  <hr>
-
+  <!-- TRACK -->
   <h3>🔍 Track Document</h3>
-  <input id="trackId" placeholder="Enter Tracking ID" style="width:70%; padding:8px;">
+
+  <input id="trackId" placeholder="Enter Tracking ID">
   <button onclick="trackDoc()">Track</button>
 
-  <div id="result" style="margin-top:20px; background:#f4f4f4; padding:15px;"></div>
+  <div id="result" class="result-box"></div>
 
-  <hr>
+  <!-- UPDATE -->
+  <h3>🔄 Update Document Status</h3>
 
-  <h3>🔄 Update Status</h3>
-  <input id="updateId" placeholder="Tracking ID" style="width:100%; padding:8px;"><br><br>
+  <input id="updateId" placeholder="Tracking ID">
 
-  <select id="location" style="width:100%; padding:8px;">
+  <select id="location">
     <option>HoD Office</option>
     <option>Principal Office</option>
     <option>Trust Office</option>
-    <option>Accounts</option>
-  </select><br><br>
+    <option>Accounts Office</option>
+    <option>Controller of Examinations</option>
+    <option>Academic Section</option>
+    <option>Admission Office</option>
+    <option>Placement Cell</option>
+    <option>Library</option>
+    <option>Research & Development Cell</option>
+    <option>Student Affairs</option>
+    <option>IQAC</option>
+  </select>
 
-  <input id="status" placeholder="Status (e.g. Sent / Received / Approved)" style="width:100%; padding:8px;"><br><br>
+  <select id="status">
+    <option>Submitted</option>
+    <option>Sent</option>
+    <option>Received</option>
+    <option>Under Review</option>
+    <option>Approved</option>
+    <option>Rejected</option>
+    <option>Forwarded</option>
+    <option>Completed</option>
+  </select>
 
   <button onclick="updateDoc()">Update Status</button>
 
-  <script>
-    async function createDoc() {
-      const res = await fetch('https://doc-tracker-ug91.onrender.com/documents', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          title: document.getElementById('title').value,
-          origin: document.getElementById('origin').value
-        })
-      });
+</div>
 
-      const data = await res.json();
-      alert("Tracking ID: " + data.trackingId);
-    }
+<script>
+const BASE_URL = "";
 
-    async function trackDoc() {
-      const id = document.getElementById('trackId').value;
-      const res = await fetch(`https://doc-tracker-ug91.onrender.com/track/${id}`);
-      const data = await res.json();
+async function createDoc() {
+  const res = await fetch(`${BASE_URL}/documents`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      title: document.getElementById('title').value,
+      origin: document.getElementById('origin').value
+    })
+  });
 
-      let html = `
-        <b>Title:</b> ${data.title}<br>
-        <b>Status:</b> ${data.status}<br>
-        <b>Current Location:</b> ${data.currentLocation}<br><br>
-        <b>History:</b><br>
-      `;
+  const data = await res.json();
+  alert("Tracking ID: " + data.trackingId);
+}
 
-      data.history.forEach(h => {
-        html += `➡️ ${h.action} at ${h.location} (${new Date(h.timestamp).toLocaleString()})<br>`;
-      });
+async function trackDoc() {
+  const id = document.getElementById('trackId').value;
+  const res = await fetch(`${BASE_URL}/track/${id}`);
+  const data = await res.json();
 
-      document.getElementById('result').innerHTML = html;
-    }
+  let html = `
+    <b>Title:</b> ${data.title}<br>
+    <b>Status:</b> ${data.status}<br>
+    <b>Current Location:</b> ${data.currentLocation}<br>
+    <div class="timeline">
+  `;
 
-    async function updateDoc() {
-      const id = document.getElementById('updateId').value;
+  data.history.forEach(h => {
+    html += `
+      <div class="timeline-item">
+        ${h.action} → ${h.location}<br>
+        <small>${new Date(h.timestamp).toLocaleString()}</small>
+      </div>
+    `;
+  });
 
-      await fetch(`https://doc-tracker-ug91.onrender.com/update/${id}`, {
-        method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          status: document.getElementById('status').value,
-          location: document.getElementById('location').value
-        })
-      });
+  html += "</div>";
 
-      alert("Updated successfully!");
-    }
-  </script>
+  document.getElementById('result').innerHTML = html;
+}
+
+async function updateDoc() {
+  const id = document.getElementById('updateId').value;
+
+  await fetch(`${BASE_URL}/update/${id}`, {
+    method: 'PUT',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      status: document.getElementById('status').value,
+      location: document.getElementById('location').value
+    })
+  });
+
+  alert("Updated successfully!");
+}
+</script>
 
 </body>
 </html>
