@@ -103,6 +103,12 @@ app.put('/update/:trackingId', async (req, res) => {
   res.json({ message: 'Updated successfully' });
 });
 
+// Get all documents (for dashboard)
+app.get('/documents', async (req, res) => {
+  const docs = await Document.find().sort({ _id: -1 });
+  res.json(docs);
+});
+
 // Start server (IMPORTANT FOR RENDER)
 const PORT = process.env.PORT || 5000;
 

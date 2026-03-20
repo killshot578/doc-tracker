@@ -5,29 +5,39 @@
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #f4f6f9;
       margin: 0;
+      display: flex;
+      background: #f4f6f9;
     }
 
-    header {
+    .sidebar {
+      width: 300px;
       background: #002147;
       color: white;
-      padding: 15px 30px;
-      font-size: 20px;
-      font-weight: bold;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 15px;
     }
 
-    .container {
-      max-width: 900px;
-      margin: 30px auto;
-      background: white;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    .sidebar h2 {
+      font-size: 18px;
+      margin-bottom: 15px;
     }
 
-    h3 {
-      margin-top: 25px;
+    .doc-item {
+      background: #004080;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      font-size: 13px;
+    }
+
+    .main {
+      flex: 1;
+      padding: 30px;
+    }
+
+    h1 {
       color: #002147;
     }
 
@@ -43,32 +53,23 @@
     button {
       background: #002147;
       color: white;
-      padding: 10px 20px;
+      padding: 10px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
 
-    button:hover {
-      background: #004080;
-    }
-
     .result-box {
-      background: #f9f9f9;
+      background: #fff;
       padding: 15px;
-      border-radius: 5px;
       margin-top: 15px;
-    }
-
-    .timeline {
-      margin-top: 10px;
+      border-radius: 5px;
     }
 
     .timeline-item {
       padding: 8px;
       border-left: 3px solid #002147;
-      margin-left: 10px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       background: #eef3f9;
     }
   </style>
@@ -76,80 +77,80 @@
 
 <body>
 
-<header>
-  📄 SREC Document Movement Tracking System
-</header>
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <h2>📊 Active Documents</h2>
+  <div id="dashboard"></div>
+</div>
 
-<div class="container">
+<!-- MAIN -->
+<div class="main">
 
-  <!-- CREATE -->
-  <h3>➕ Create Document</h3>
+<h1>📄 SREC Document Tracking System</h1>
 
-  <input id="title" placeholder="Document Title">
+<h3>Create Document</h3>
+<input id="title" placeholder="Document Title">
 
-  <select id="origin">
-    <option>Aeronautical Engineering</option>
-    <option>Biomedical Engineering</option>
-    <option>Civil Engineering</option>
-    <option>Mechanical Engineering</option>
-    <option>ECE</option>
-    <option>EEE</option>
-    <option>EIE</option>
-    <option>CSE</option>
-    <option>IT</option>
-    <option>AI & DS</option>
-    <option>Robotics & Automation</option>
-    <option>Science & Humanities</option>
-  </select>
+<select id="origin">
+  <option>Aeronautical Engineering</option>
+  <option>CSE</option>
+  <option>Mechanical Engineering</option>
+</select>
 
-  <button onclick="createDoc()">Create Document</button>
+<button onclick="createDoc()">Create</button>
 
-  <!-- TRACK -->
-  <h3>🔍 Track Document</h3>
+<h3>Track Document</h3>
+<input id="trackId" placeholder="Tracking ID">
+<button onclick="trackDoc()">Track</button>
 
-  <input id="trackId" placeholder="Enter Tracking ID">
-  <button onclick="trackDoc()">Track</button>
+<div id="result" class="result-box"></div>
 
-  <div id="result" class="result-box"></div>
+<h3>Update Status</h3>
+<input id="updateId" placeholder="Tracking ID">
 
-  <!-- UPDATE -->
-  <h3>🔄 Update Document Status</h3>
+<select id="location">
+  <option>HoD Office</option>
+  <option>Principal Office</option>
+  <option>Trust Office</option>
+  <option>Accounts Office</option>
+</select>
 
-  <input id="updateId" placeholder="Tracking ID">
+<select id="status">
+  <option>Submitted</option>
+  <option>Sent</option>
+  <option>Received</option>
+  <option>Approved</option>
+</select>
 
-  <select id="location">
-    <option>HoD Office</option>
-    <option>Principal Office</option>
-    <option>Trust Office</option>
-    <option>Accounts Office</option>
-    <option>Controller of Examinations</option>
-    <option>Academic Section</option>
-    <option>Admission Office</option>
-    <option>Placement Cell</option>
-    <option>Library</option>
-    <option>Research & Development Cell</option>
-    <option>Student Affairs</option>
-    <option>IQAC</option>
-  </select>
-
-  <select id="status">
-    <option>Submitted</option>
-    <option>Sent</option>
-    <option>Received</option>
-    <option>Under Review</option>
-    <option>Approved</option>
-    <option>Rejected</option>
-    <option>Forwarded</option>
-    <option>Completed</option>
-  </select>
-
-  <button onclick="updateDoc()">Update Status</button>
+<button onclick="updateDoc()">Update</button>
 
 </div>
 
 <script>
 const BASE_URL = "";
 
+// LOAD DASHBOARD
+async function loadDashboard() {
+  const res = await fetch(`${BASE_URL}/documents`);
+  const docs = await res.json();
+
+  let html = "";
+
+  docs.forEach(d => {
+    html += `
+      <div class="doc-item">
+        <b>${d.title}</b><br>
+        ${d.trackingId}<br>
+        📍 ${d.currentLocation}<br>
+        <small>${d.status}</small>
+      </div>
+    `;
+  });
+
+  document.getElementById("dashboard").innerHTML = html;
+}
+
+// CREATE
 async function createDoc() {
   const res = await fetch(`${BASE_URL}/documents`, {
     method: 'POST',
@@ -162,34 +163,25 @@ async function createDoc() {
 
   const data = await res.json();
   alert("Tracking ID: " + data.trackingId);
+  loadDashboard();
 }
 
+// TRACK
 async function trackDoc() {
   const id = document.getElementById('trackId').value;
   const res = await fetch(`${BASE_URL}/track/${id}`);
   const data = await res.json();
 
-  let html = `
-    <b>Title:</b> ${data.title}<br>
-    <b>Status:</b> ${data.status}<br>
-    <b>Current Location:</b> ${data.currentLocation}<br>
-    <div class="timeline">
-  `;
+  let html = `<b>${data.title}</b><br>Status: ${data.status}<br><br>`;
 
   data.history.forEach(h => {
-    html += `
-      <div class="timeline-item">
-        ${h.action} → ${h.location}<br>
-        <small>${new Date(h.timestamp).toLocaleString()}</small>
-      </div>
-    `;
+    html += `<div class="timeline-item">${h.action} → ${h.location}</div>`;
   });
-
-  html += "</div>";
 
   document.getElementById('result').innerHTML = html;
 }
 
+// UPDATE
 async function updateDoc() {
   const id = document.getElementById('updateId').value;
 
@@ -202,8 +194,12 @@ async function updateDoc() {
     })
   });
 
-  alert("Updated successfully!");
+  alert("Updated!");
+  loadDashboard();
 }
+
+// INITIAL LOAD
+loadDashboard();
 </script>
 
 </body>
