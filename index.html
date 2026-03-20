@@ -2,26 +2,50 @@
 <html>
 <head>
   <title>SREC Document Tracking System</title>
+
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
       margin: 0;
-      display: flex;
       background: #f4f6f9;
+    }
+
+    .header {
+      background: #002147;
+      color: white;
+      padding: 10px 20px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+    }
+
+    .logo {
+      height: 50px;
+      margin-right: 15px;
+    }
+
+    .college-name {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .system-title {
+      font-size: 14px;
+    }
+
+    .layout {
+      display: flex;
     }
 
     .sidebar {
       width: 300px;
       background: #002147;
       color: white;
-      height: 100vh;
+      height: calc(100vh - 70px);
       overflow-y: auto;
       padding: 15px;
-    }
-
-    .sidebar h2 {
-      font-size: 18px;
-      margin-bottom: 15px;
     }
 
     .doc-item {
@@ -32,13 +56,18 @@
       font-size: 13px;
     }
 
+    .doc-item button {
+      margin-top: 8px;
+      background: red;
+      padding: 5px;
+      border: none;
+      color: white;
+      cursor: pointer;
+    }
+
     .main {
       flex: 1;
       padding: 30px;
-    }
-
-    h1 {
-      color: #002147;
     }
 
     input, select {
@@ -55,12 +84,11 @@
       color: white;
       padding: 10px;
       border: none;
-      border-radius: 5px;
       cursor: pointer;
     }
 
     .result-box {
-      background: #fff;
+      background: white;
       padding: 15px;
       margin-top: 15px;
       border-radius: 5px;
@@ -77,24 +105,46 @@
 
 <body>
 
+<!-- HEADER -->
+<header class="header">
+  <div class="header-left">
+    <img src="logo.png" class="logo">
+    <div>
+      <div class="college-name">Sri Ramakrishna Engineering College</div>
+      <div class="system-title">Document Movement Tracking System</div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+
 <!-- SIDEBAR -->
 <div class="sidebar">
-  <h2>📊 Active Documents</h2>
+  <h3>📊 Active Documents</h3>
   <div id="dashboard"></div>
 </div>
 
 <!-- MAIN -->
 <div class="main">
 
-<h1>📄 SREC Document Tracking System</h1>
+<h2>📄 Document Tracking</h2>
 
 <h3>Create Document</h3>
 <input id="title" placeholder="Document Title">
 
 <select id="origin">
   <option>Aeronautical Engineering</option>
-  <option>CSE</option>
+  <option>Biomedical Engineering</option>
+  <option>Civil Engineering</option>
   <option>Mechanical Engineering</option>
+  <option>ECE</option>
+  <option>EEE</option>
+  <option>EIE</option>
+  <option>CSE</option>
+  <option>IT</option>
+  <option>AI & DS</option>
+  <option>Robotics & Automation</option>
+  <option>Science & Humanities</option>
 </select>
 
 <button onclick="createDoc()">Create</button>
@@ -113,47 +163,59 @@
   <option>Principal Office</option>
   <option>Trust Office</option>
   <option>Accounts Office</option>
+  <option>Controller of Examinations</option>
+  <option>Academic Section</option>
+  <option>Admission Office</option>
+  <option>Placement Cell</option>
+  <option>Library</option>
+  <option>Research & Development Cell</option>
+  <option>Student Affairs</option>
+  <option>IQAC</option>
 </select>
 
 <select id="status">
   <option>Submitted</option>
   <option>Sent</option>
   <option>Received</option>
+  <option>Under Review</option>
   <option>Approved</option>
+  <option>Rejected</option>
+  <option>Forwarded</option>
+  <option>Completed</option>
 </select>
 
 <button onclick="updateDoc()">Update</button>
 
 </div>
+</div>
 
 <script>
-const BASE_URL = "";
 
 // LOAD DASHBOARD
 async function loadDashboard() {
-  const res = await fetch(`${BASE_URL}/documents`);
+  const res = await fetch(`/documents`);
   const docs = await res.json();
 
   let html = "";
 
   docs.forEach(d => {
-  html += `
-    <div class="doc-item">
-      <b>${d.title}</b><br>
-      ${d.trackingId}<br>
-      📍 ${d.currentLocation}<br>
-      <small>${d.status}</small><br><br>
-      <button onclick="deleteDoc('${d.trackingId}')">🗑 Delete</button>
-    </div>
-  `;
-});
+    html += `
+      <div class="doc-item">
+        <b>${d.title}</b><br>
+        ${d.trackingId}<br>
+        📍 ${d.currentLocation}<br>
+        <small>${d.status}</small><br>
+        <button onclick="deleteDoc('${d.trackingId}')">🗑 Delete</button>
+      </div>
+    `;
+  });
 
   document.getElementById("dashboard").innerHTML = html;
 }
 
 // CREATE
 async function createDoc() {
-  const res = await fetch(`${BASE_URL}/documents`, {
+  const res = await fetch(`/documents`, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({
@@ -170,7 +232,7 @@ async function createDoc() {
 // TRACK
 async function trackDoc() {
   const id = document.getElementById('trackId').value;
-  const res = await fetch(`${BASE_URL}/track/${id}`);
+  const res = await fetch(`/track/${id}`);
   const data = await res.json();
 
   let html = `<b>${data.title}</b><br>Status: ${data.status}<br><br>`;
@@ -186,7 +248,7 @@ async function trackDoc() {
 async function updateDoc() {
   const id = document.getElementById('updateId').value;
 
-  await fetch(`${BASE_URL}/update/${id}`, {
+  await fetch(`/update/${id}`, {
     method: 'PUT',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({
@@ -199,8 +261,20 @@ async function updateDoc() {
   loadDashboard();
 }
 
+// DELETE
+async function deleteDoc(id) {
+  if (!confirm("Delete this document?")) return;
+
+  await fetch(`/documents/${id}`, {
+    method: 'DELETE'
+  });
+
+  loadDashboard();
+}
+
 // INITIAL LOAD
 loadDashboard();
+
 </script>
 
 </body>
