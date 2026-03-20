@@ -4,67 +4,84 @@
   <title>SREC Document Tracking System</title>
 
   <style>
+    :root {
+      --primary: #002147;
+      --secondary: #004080;
+      --light-bg: #f4f6f9;
+    }
+
     body {
       font-family: 'Segoe UI', sans-serif;
       margin: 0;
-      background: #f4f6f9;
+      background: var(--light-bg);
     }
 
+    /* HEADER */
     .header {
-      background: #002147;
-      color: white;
-      padding: 10px 20px;
+      background: var(--primary);
+      padding: 12px 25px;
     }
 
     .header-left {
       display: flex;
       align-items: center;
+      gap: 20px;
+    }
+
+    .logo-box {
+      background: white;
+      padding: 8px 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     }
 
     .logo {
-      height: 50px;
-      margin-right: 15px;
-    }
-
-    .college-name {
-      font-size: 18px;
-      font-weight: bold;
+      height: 55px;
     }
 
     .system-title {
-      font-size: 14px;
+      color: white;
+      font-size: 20px;
+      font-weight: 500;
     }
 
+    /* LAYOUT */
     .layout {
       display: flex;
     }
 
+    /* SIDEBAR */
     .sidebar {
       width: 300px;
-      background: #002147;
+      background: var(--primary);
       color: white;
-      height: calc(100vh - 70px);
+      height: calc(100vh - 80px);
       overflow-y: auto;
       padding: 15px;
     }
 
     .doc-item {
-      background: #004080;
+      background: var(--secondary);
       padding: 10px;
       margin-bottom: 10px;
-      border-radius: 5px;
-      font-size: 13px;
+      border-radius: 6px;
     }
 
     .doc-item button {
       margin-top: 8px;
-      background: red;
-      padding: 5px;
+      background: crimson;
       border: none;
+      padding: 5px;
       color: white;
       cursor: pointer;
+      border-radius: 4px;
     }
 
+    .doc-item button:hover {
+      background: darkred;
+    }
+
+    /* MAIN */
     .main {
       flex: 1;
       padding: 30px;
@@ -75,28 +92,33 @@
       padding: 10px;
       margin-top: 8px;
       margin-bottom: 15px;
-      border-radius: 5px;
+      border-radius: 6px;
       border: 1px solid #ccc;
     }
 
     button {
-      background: #002147;
+      background: var(--primary);
       color: white;
       padding: 10px;
       border: none;
+      border-radius: 6px;
       cursor: pointer;
+    }
+
+    button:hover {
+      background: var(--secondary);
     }
 
     .result-box {
       background: white;
       padding: 15px;
       margin-top: 15px;
-      border-radius: 5px;
+      border-radius: 6px;
     }
 
     .timeline-item {
       padding: 8px;
-      border-left: 3px solid #002147;
+      border-left: 3px solid var(--primary);
       margin-bottom: 8px;
       background: #eef3f9;
     }
@@ -108,11 +130,10 @@
 <!-- HEADER -->
 <header class="header">
   <div class="header-left">
-    <img src="logo.png" class="logo">
-    <div>
-      <div class="college-name">Sri Ramakrishna Engineering College</div>
-      <div class="system-title">Document Movement Tracking System</div>
+    <div class="logo-box">
+      <img src="logo.png" class="logo">
     </div>
+    <div class="system-title">Document Movement Tracking System</div>
   </div>
 </header>
 
