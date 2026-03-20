@@ -137,15 +137,16 @@ async function loadDashboard() {
   let html = "";
 
   docs.forEach(d => {
-    html += `
-      <div class="doc-item">
-        <b>${d.title}</b><br>
-        ${d.trackingId}<br>
-        📍 ${d.currentLocation}<br>
-        <small>${d.status}</small>
-      </div>
-    `;
-  });
+  html += `
+    <div class="doc-item">
+      <b>${d.title}</b><br>
+      ${d.trackingId}<br>
+      📍 ${d.currentLocation}<br>
+      <small>${d.status}</small><br><br>
+      <button onclick="deleteDoc('${d.trackingId}')">🗑 Delete</button>
+    </div>
+  `;
+});
 
   document.getElementById("dashboard").innerHTML = html;
 }

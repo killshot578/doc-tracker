@@ -108,6 +108,16 @@ app.get('/documents', async (req, res) => {
   const docs = await Document.find().sort({ _id: -1 });
   res.json(docs);
 });
+// Delete document
+app.delete('/documents/:trackingId', async (req, res) => {
+  const doc = await Document.findOneAndDelete({
+    trackingId: req.params.trackingId
+  });
+
+  if (!doc) return res.status(404).json({ message: 'Not found' });
+
+  res.json({ message: 'Document deleted successfully' });
+});
 
 // Start server (IMPORTANT FOR RENDER)
 const PORT = process.env.PORT || 5000;
