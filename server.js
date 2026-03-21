@@ -9,10 +9,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Serve frontend (VERY IMPORTANT)
+// Serve frontend
 app.use(express.static(path.join(__dirname)));
 
-// Homepage route
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -27,13 +26,24 @@ function generateTrackingId() {
   return 'DOC-' + Math.random().toString(36).substring(2, 8).toUpperCase();
 }
 
+// WORKFLOW FLOW
+const workflow = [
+  "HoD Office",
+  "Principal Office",
+  "Trust Office",
+  "Accounts Office"
+];
+
 // Schema
 const DocumentSchema = new mongoose.Schema({
   trackingId: { type: String, unique: true },
   title: String,
   origin: String,
+  category: String,
   currentLocation: String,
   status: String,
+  createdAt: { type: Date, default: Date.now },
+
   history: [
     {
       action: String,
@@ -45,7 +55,7 @@ const DocumentSchema = new mongoose.Schema({
 
 const Document = mongoose.model('Document', DocumentSchema);
 
-// Create document
+// CREATE DOCUMENT
 app.post('/documents', async (req, res) => {
   const trackingId = generateTrackingId();
 
@@ -53,12 +63,14 @@ app.post('/documents', async (req, res) => {
     trackingId,
     title: req.body.title,
     origin: req.body.origin,
-    currentLocation: 'HoD Office',
-    status: 'Submitted to HoD',
+    category: req.body.category,
+    currentLocation: "HoD Office",
+    status: "Submitted",
+    createdAt: new Date(),
     history: [
       {
-        action: 'Submitted',
-        location: 'HoD Office',
+        action: "Submitted",
+        location: "HoD Office",
         timestamp: new Date().toISOString()
       }
     ]
@@ -67,27 +79,53 @@ app.post('/documents', async (req, res) => {
   await doc.save();
 
   res.json({
-    message: 'Document created',
+    message: "Document created",
     trackingId
   });
 });
 
-// Track document
+// TRACK DOCUMENT
 app.get('/track/:trackingId', async (req, res) => {
   const doc = await Document.findOne({ trackingId: req.params.trackingId });
 
-  if (!doc) return res.status(404).json({ message: 'Not found' });
+  if (!doc) return res.status(404).json({ message: "Not found" });
 
   res.json(doc);
 });
 
-// Update document
+// AUTO NEXT STEP (MAIN FEATURE)
+app.put('/next/:trackingId', async (req, res) => {
+  const doc = await Document.findOne({ trackingId: req.params.trackingId });
+
+  if (!doc) return res.status(404).json({ message: "Not found" });
+
+  const currentIndex = workflow.indexOf(doc.currentLocation);
+
+  if (currentIndex < workflow.length - 1) {
+    doc.currentLocation = workflow[currentIndex + 1];
+    doc.status = "Forwarded";
+  } else {
+    doc.status = "Completed";
+  }
+
+  doc.history.push({
+    action: doc.status,
+    location: doc.currentLocation,
+    timestamp: new Date().toISOString()
+  });
+
+  await doc.save();
+
+  res.json({ message: "Moved to next step", doc });
+});
+
+// OPTIONAL MANUAL UPDATE (still kept)
 app.put('/update/:trackingId', async (req, res) => {
   const { status, location } = req.body;
 
   const doc = await Document.findOne({ trackingId: req.params.trackingId });
 
-  if (!doc) return res.status(404).json({ message: 'Not found' });
+  if (!doc) return res.status(404).json({ message: "Not found" });
 
   doc.status = status;
   doc.currentLocation = location;
@@ -100,26 +138,16 @@ app.put('/update/:trackingId', async (req, res) => {
 
   await doc.save();
 
-  res.json({ message: 'Updated successfully' });
+  res.json({ message: "Updated successfully" });
 });
 
-// Get all documents (for dashboard)
+// GET ALL DOCUMENTS (for dashboard)
 app.get('/documents', async (req, res) => {
-  const docs = await Document.find().sort({ _id: -1 });
+  const docs = await Document.find().sort({ createdAt: -1 });
   res.json(docs);
 });
-// Delete document
-app.delete('/documents/:trackingId', async (req, res) => {
-  const doc = await Document.findOneAndDelete({
-    trackingId: req.params.trackingId
-  });
 
-  if (!doc) return res.status(404).json({ message: 'Not found' });
-
-  res.json({ message: 'Document deleted successfully' });
-});
-
-// Start server (IMPORTANT FOR RENDER)
+// START SERVER
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
