@@ -5,8 +5,8 @@
 
   <style>
     :root {
-      --primary: #2b5f4e;
-      --secondary: #cbac49;
+      --primary: #002147;
+      --secondary: #1f4e79;
       --light-bg: #f4f6f9;
     }
 
@@ -18,7 +18,7 @@
 
     /* HEADER */
     .header {
-      background: var(--primary);
+      background: #2f6b55;
       padding: 12px 25px;
     }
 
@@ -29,18 +29,14 @@
     }
 
     .logo-box {
-  background: white;
-  padding: 12px 20px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-}
+      background: white;
+      padding: 6px 10px;
+      border-radius: 10px;
+    }
 
     .logo {
-  height: 95px;
-  width: auto;
-  display: block;
-}
+      height: 60px;
+    }
 
     .system-title {
       color: white;
@@ -65,29 +61,42 @@
 
     .doc-item {
       background: var(--secondary);
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      transition: 0.2s;
+    }
+
+    .doc-item:hover {
+      background: #2b6ca3;
     }
 
     .doc-item button {
       margin-top: 8px;
       background: crimson;
       border: none;
-      padding: 5px;
+      padding: 5px 10px;
       color: white;
       cursor: pointer;
-      border-radius: 4px;
-    }
-
-    .doc-item button:hover {
-      background: darkred;
+      border-radius: 5px;
     }
 
     /* MAIN */
     .main {
       flex: 1;
       padding: 30px;
+    }
+
+    .content-card {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    h3 {
+      margin-top: 30px;
+      margin-bottom: 10px;
     }
 
     input, select {
@@ -102,18 +111,21 @@
     button {
       background: var(--primary);
       color: white;
-      padding: 10px;
+      padding: 10px 16px;
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      font-weight: 500;
+      transition: 0.2s;
     }
 
     button:hover {
       background: var(--secondary);
+      transform: translateY(-1px);
     }
 
     .result-box {
-      background: white;
+      background: #f9f9f9;
       padding: 15px;
       margin-top: 15px;
       border-radius: 6px;
@@ -150,67 +162,53 @@
 
 <!-- MAIN -->
 <div class="main">
+  <div class="content-card">
 
-<h2>📄 Document Tracking</h2>
+    <h2>📄 Document Tracking</h2>
 
-<h3>Create Document</h3>
-<input id="title" placeholder="Document Title">
+    <h3>Create Document</h3>
+    <input id="title" placeholder="Document Title">
 
-<select id="origin">
-  <option>Aeronautical Engineering</option>
-  <option>Biomedical Engineering</option>
-  <option>Civil Engineering</option>
-  <option>Mechanical Engineering</option>
-  <option>ECE</option>
-  <option>EEE</option>
-  <option>EIE</option>
-  <option>CSE</option>
-  <option>IT</option>
-  <option>AI & DS</option>
-  <option>Robotics & Automation</option>
-  <option>Science & Humanities</option>
-</select>
+    <select id="origin">
+      <option>Aeronautical Engineering</option>
+      <option>Biomedical Engineering</option>
+      <option>Civil Engineering</option>
+      <option>Mechanical Engineering</option>
+      <option>CSE</option>
+      <option>IT</option>
+    </select>
 
-<button onclick="createDoc()">Create</button>
+    <button onclick="createDoc()">Create</button>
 
-<h3>Track Document</h3>
-<input id="trackId" placeholder="Tracking ID">
-<button onclick="trackDoc()">Track</button>
+    <h3>Track Document</h3>
+    <input id="trackId" placeholder="Tracking ID">
+    <button onclick="trackDoc()">Track</button>
 
-<div id="result" class="result-box"></div>
+    <div id="result" class="result-box"></div>
 
-<h3>Update Status</h3>
-<input id="updateId" placeholder="Tracking ID">
+    <h3>Update Status</h3>
+    <input id="updateId" placeholder="Tracking ID">
 
-<select id="location">
-  <option>HoD Office</option>
-  <option>Principal Office</option>
-  <option>Trust Office</option>
-  <option>Accounts Office</option>
-  <option>Controller of Examinations</option>
-  <option>Academic Section</option>
-  <option>Admission Office</option>
-  <option>Placement Cell</option>
-  <option>Library</option>
-  <option>Research & Development Cell</option>
-  <option>Student Affairs</option>
-  <option>IQAC</option>
-</select>
+    <select id="location">
+      <option>HoD Office</option>
+      <option>Principal Office</option>
+      <option>Trust Office</option>
+      <option>Accounts Office</option>
+    </select>
 
-<select id="status">
-  <option>Submitted</option>
-  <option>Sent</option>
-  <option>Received</option>
-  <option>Under Review</option>
-  <option>Approved</option>
-  <option>Rejected</option>
-  <option>Forwarded</option>
-  <option>Completed</option>
-</select>
+    <select id="status">
+      <option>Submitted</option>
+      <option>Sent</option>
+      <option>Received</option>
+      <option>Approved</option>
+      <option>Completed</option>
+    </select>
 
-<button onclick="updateDoc()">Update</button>
+    <button onclick="updateDoc()">Update</button>
 
+  </div>
 </div>
+
 </div>
 
 <script>
@@ -225,11 +223,18 @@ async function loadDashboard() {
   docs.forEach(d => {
     html += `
       <div class="doc-item">
-        <b>${d.title}</b><br>
-        ${d.trackingId}<br>
-        📍 ${d.currentLocation}<br>
-        <small>${d.status}</small><br>
-        <button onclick="deleteDoc('${d.trackingId}')">🗑 Delete</button>
+        <div style="font-weight:bold;">${d.title}</div>
+        <div style="font-size:12px; opacity:0.8;">${d.trackingId}</div>
+
+        <div style="margin-top:6px;">
+          📍 <b>${d.currentLocation}</b>
+        </div>
+
+        <div style="font-size:12px; margin-top:4px;">
+          ${d.status}
+        </div>
+
+        <button onclick="deleteDoc('${d.trackingId}')">Delete</button>
       </div>
     `;
   });
