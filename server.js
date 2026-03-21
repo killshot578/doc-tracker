@@ -26,14 +26,6 @@ function generateTrackingId() {
   return 'DOC-' + Math.random().toString(36).substring(2, 8).toUpperCase();
 }
 
-// WORKFLOW FLOW
-const workflow = [
-  "HoD Office",
-  "Principal Office",
-  "Trust Office",
-  "Accounts Office"
-];
-
 // Schema
 const DocumentSchema = new mongoose.Schema({
   trackingId: { type: String, unique: true },
@@ -93,33 +85,7 @@ app.get('/track/:trackingId', async (req, res) => {
   res.json(doc);
 });
 
-// AUTO NEXT STEP (MAIN FEATURE)
-app.put('/next/:trackingId', async (req, res) => {
-  const doc = await Document.findOne({ trackingId: req.params.trackingId });
-
-  if (!doc) return res.status(404).json({ message: "Not found" });
-
-  const currentIndex = workflow.indexOf(doc.currentLocation);
-
-  if (currentIndex < workflow.length - 1) {
-    doc.currentLocation = workflow[currentIndex + 1];
-    doc.status = "Forwarded";
-  } else {
-    doc.status = "Completed";
-  }
-
-  doc.history.push({
-    action: doc.status,
-    location: doc.currentLocation,
-    timestamp: new Date().toISOString()
-  });
-
-  await doc.save();
-
-  res.json({ message: "Moved to next step", doc });
-});
-
-// OPTIONAL MANUAL UPDATE (still kept)
+// MANUAL UPDATE (MAIN FEATURE)
 app.put('/update/:trackingId', async (req, res) => {
   const { status, location } = req.body;
 
@@ -141,7 +107,7 @@ app.put('/update/:trackingId', async (req, res) => {
   res.json({ message: "Updated successfully" });
 });
 
-// GET ALL DOCUMENTS (for dashboard)
+// GET ALL DOCUMENTS (dashboard)
 app.get('/documents', async (req, res) => {
   const docs = await Document.find().sort({ createdAt: -1 });
   res.json(docs);

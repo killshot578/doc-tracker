@@ -74,16 +74,6 @@
       color: white;
     }
 
-    .doc-item button {
-      margin-top: 6px;
-      background: white;
-      color: black;
-      border: none;
-      padding: 5px 8px;
-      cursor: pointer;
-      border-radius: 5px;
-    }
-
     /* MAIN */
     .main {
       flex: 1;
@@ -158,8 +148,17 @@
 
     <select id="origin">
       <option>Aeronautical Engineering</option>
+      <option>Biomedical Engineering</option>
+      <option>Civil Engineering</option>
       <option>Mechanical Engineering</option>
+      <option>ECE</option>
+      <option>EEE</option>
+      <option>EIE</option>
       <option>CSE</option>
+      <option>IT</option>
+      <option>AI & DS</option>
+      <option>Robotics & Automation</option>
+      <option>Science & Humanities</option>
     </select>
 
     <select id="category">
@@ -177,6 +176,37 @@
 
     <div id="result"></div>
 
+    <h3>Update Status</h3>
+    <input id="updateId" placeholder="Tracking ID">
+
+    <select id="location">
+      <option>HoD Office</option>
+      <option>Principal Office</option>
+      <option>Trust Office</option>
+      <option>Accounts Office</option>
+      <option>Controller of Examinations</option>
+      <option>Academic Section</option>
+      <option>Admission Office</option>
+      <option>Placement Cell</option>
+      <option>Library</option>
+      <option>Research & Development Cell</option>
+      <option>Student Affairs</option>
+      <option>IQAC</option>
+    </select>
+
+    <select id="status">
+      <option>Submitted</option>
+      <option>Sent</option>
+      <option>Received</option>
+      <option>Under Review</option>
+      <option>Approved</option>
+      <option>Rejected</option>
+      <option>Forwarded</option>
+      <option>Completed</option>
+    </select>
+
+    <button onclick="updateDoc()">Update</button>
+
   </div>
 </div>
 
@@ -184,6 +214,7 @@
 
 <script>
 
+// LOAD DASHBOARD
 async function loadDashboard() {
   const res = await fetch(`/documents`);
   const docs = await res.json();
@@ -205,11 +236,7 @@ async function loadDashboard() {
         ${d.trackingId}<br>
         📍 ${d.currentLocation}<br>
         ${d.status}<br>
-        ${Math.floor(days)} days<br>
-
-        ${d.status !== "Completed" ? 
-          `<button onclick="nextStep('${d.trackingId}')">Next ➡</button>` 
-          : ""}
+        ${Math.floor(days)} days
       </div>
     `;
 
@@ -228,11 +255,7 @@ async function loadDashboard() {
     `Total: ${docs.length} | Completed: ${completedCount}`;
 }
 
-async function nextStep(id) {
-  await fetch(`/next/${id}`, { method: 'PUT' });
-  loadDashboard();
-}
-
+// CREATE
 async function createDoc() {
   const res = await fetch(`/documents`, {
     method: 'POST',
@@ -249,6 +272,7 @@ async function createDoc() {
   loadDashboard();
 }
 
+// TRACK
 async function trackDoc() {
   const id = document.getElementById('trackId').value;
   const res = await fetch(`/track/${id}`);
@@ -263,6 +287,24 @@ async function trackDoc() {
   document.getElementById('result').innerHTML = html;
 }
 
+// UPDATE
+async function updateDoc() {
+  const id = document.getElementById('updateId').value;
+
+  await fetch(`/update/${id}`, {
+    method: 'PUT',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      status: document.getElementById('status').value,
+      location: document.getElementById('location').value
+    })
+  });
+
+  alert("Updated!");
+  loadDashboard();
+}
+
+// SEARCH
 async function searchDocs() {
   const query = document.getElementById("search").value.toLowerCase();
   const res = await fetch(`/documents`);
@@ -282,6 +324,7 @@ async function searchDocs() {
   document.getElementById("activeDocs").innerHTML = html;
 }
 
+// INITIAL LOAD
 loadDashboard();
 
 </script>
