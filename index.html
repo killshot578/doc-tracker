@@ -214,6 +214,11 @@
 
 <script>
 
+// FORMAT TIME
+function formatTime(date) {
+  return new Date(date).toLocaleString();
+}
+
 // LOAD DASHBOARD
 async function loadDashboard() {
   const res = await fetch(`/documents`);
@@ -224,19 +229,40 @@ async function loadDashboard() {
   let completedCount = 0;
 
   docs.forEach(d => {
-    const days = (new Date() - new Date(d.createdAt)) / (1000*60*60*24);
+    const created = new Date(d.createdAt);
+    const now = new Date();
+    const days = (now - created) / (1000*60*60*24);
 
     let color = "#1f4e79";
-    if (days > 5 && d.status !== "Completed") color = "crimson";
-    else if (days > 2 && d.status !== "Completed") color = "orange";
+    let label = "";
+
+    if (d.status !== "Completed") {
+      if (days > 5) {
+        color = "crimson";
+        label = "🔴 Delayed";
+      } else if (days > 2) {
+        color = "orange";
+        label = "🟠 Pending";
+      } else {
+        label = "🟢 Normal";
+      }
+    }
+
+    const lastUpdate = d.history[d.history.length - 1];
 
     const card = `
       <div class="doc-item" style="background:${color}">
         <b>${d.title}</b><br>
         ${d.trackingId}<br>
+
         📍 ${d.currentLocation}<br>
         ${d.status}<br>
-        ${Math.floor(days)} days
+
+        <small>${label}</small><br>
+        <small>${Math.floor(days)} days</small><br>
+
+        <small>Last Update:</small><br>
+        <small>${formatTime(lastUpdate.timestamp)}</small>
       </div>
     `;
 
@@ -272,16 +298,26 @@ async function createDoc() {
   loadDashboard();
 }
 
-// TRACK
+// TRACK (DETAILED TIMELINE)
 async function trackDoc() {
   const id = document.getElementById('trackId').value;
   const res = await fetch(`/track/${id}`);
   const data = await res.json();
 
-  let html = `<b>${data.title}</b><br>Status: ${data.status}<br><br>`;
+  let html = `
+    <b>${data.title}</b><br>
+    Status: ${data.status}<br>
+    Current Location: ${data.currentLocation}<br><br>
+    <b>History:</b><br>
+  `;
 
   data.history.forEach(h => {
-    html += `<div class="timeline-item">${h.action} → ${h.location}</div>`;
+    html += `
+      <div class="timeline-item">
+        ${h.action} → ${h.location}<br>
+        <small>${formatTime(h.timestamp)}</small>
+      </div>
+    `;
   });
 
   document.getElementById('result').innerHTML = html;
@@ -318,7 +354,11 @@ async function searchDocs() {
   let html = "";
 
   filtered.forEach(d => {
-    html += `<div class="doc-item">${d.title} (${d.trackingId})</div>`;
+    html += `
+      <div class="doc-item">
+        ${d.title} (${d.trackingId})
+      </div>
+    `;
   });
 
   document.getElementById("activeDocs").innerHTML = html;

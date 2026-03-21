@@ -63,7 +63,7 @@ app.post('/documents', async (req, res) => {
       {
         action: "Submitted",
         location: "HoD Office",
-        timestamp: new Date().toISOString()
+        timestamp: new Date()
       }
     ]
   });
@@ -99,7 +99,7 @@ app.put('/update/:trackingId', async (req, res) => {
   doc.history.push({
     action: status,
     location,
-    timestamp: new Date().toISOString()
+    timestamp: new Date()
   });
 
   await doc.save();
